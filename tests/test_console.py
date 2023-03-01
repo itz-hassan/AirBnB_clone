@@ -1,16 +1,9 @@
 #!/usr/bin/python3
-"""
-Unit tests for console using Mock module from python standard library
-Checks console for capturing stdout into a StringIO object
-"""
-
-import os
-import sys
+"""test for console to make it start working"""
 import unittest
-from unittest.mock import create_autospec, patch
 from io import StringIO
 from console import HBNBCommand
-from models import storage
+import sys
 from models.base_model import BaseModel
 from models.user import User
 from models.state import State
@@ -18,49 +11,50 @@ from models.city import City
 from models.amenity import Amenity
 from models.place import Place
 from models.review import Review
+from models.engine.file_storage import FileStorage
+from models.engine.db_storage import DBStorage
 
 
 class TestConsole(unittest.TestCase):
-    """
-    Unittest for the console model
-    """
+    """this will test the console"""
 
-    def setUp(self):
-        """Redirecting stdin and stdout"""
-        self.mock_stdin = create_autospec(sys.stdin)
-        self.mock_stdout = create_autospec(sys.stdout)
-        self.err = ["** class name missing **",
-                    "** class doesn't exist **",
-                    "** instance id missing **",
-                    "** no instance found **",
-                    ]
+    def test_exists(self):
+        """checking for docstrings i think"""
+        self.assertIsNotNone(HBNBCommand.do_quit.__doc__)
+        self.assertIsNotNone(HBNBCommand.do_create.__doc__)
+        self.assertIsNotNone(HBNBCommand.do_show.__doc__)
+        self.assertIsNotNone(HBNBCommand.do_destroy.__doc__)
+        self.assertIsNotNone(HBNBCommand.do_all.__doc__)
+        self.assertIsNotNone(HBNBCommand.do_update.__doc__)
 
-        self.cls = ["BaseModel",
-                    "User",
-                    "State",
-                    "City",
-                    "Place",
-                    "Amenity",
-                    "Review"]
+    @classmethod
+    def get_S(cls):
+        """get stringio value and close"""
+        temp_out = StringIO()
+        sys.stdout = temp_out
+        return temp_out.getvalue()
 
-    def create(self, server=None):
-        """
-        Redirects stdin and stdout to the mock module
-        """
-        return HBNBCommand(stdin=self.mock_stdin, stdout=self.mock_stdout)
+    def test_create_error(self):
+        """test if create works right"""
+        temp_out = StringIO()
+        sys.stdout = temp_out
 
-    def last_write(self, nr=None):
-        """Returns last n output lines"""
-        if nr is None:
-            return self.mock_stdout.write.call_args[0][0]
-        return "".join(map(lambda c: c[0][0],
-                           self.mock_stdout.write.call_args_list[-nr:]))
+        HBNBCommand().do_create(None)
+        self.assertEqual(temp_out.getvalue(), '** class name missing **\n')
+        temp_out.close()
 
-    def test_quit(self):
-        """Quit command"""
-        cli = self.create()
-        self.assertTrue(cli.onecmd("quit"))
+        temp_out = StringIO()
+        sys.stdout = temp_out
+        HBNBCommand().do_create("base")
+        self.assertEqual(temp_out.getvalue(), '** class doesn\'t exist **\n')
+        temp_out.close()
 
+        temp_out = StringIO()
+        sys.stdout = temp_out
+        HBNBCommand().do_create("BaseModel")
+        self.assertEqual(temp_out.getvalue(), '** class doesn\'t exist **\n')
+        temp_out.close()
+        sys.stdout = sys.__stdout__
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

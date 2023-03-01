@@ -1,25 +1,45 @@
 #!/usr/bin/python3
 """
-Test suits for amenities
+    test state
 """
-import os
-import models
-import unittest
-from datetime import datetime
 from models.base_model import BaseModel
+from models.state import State
+import unittest
 
 
-class TestState(unittest.TestCase):
+class test_State(unittest.TestCase):
     """
-    Tests for amenities
+        test for state class
     """
-
-    def test_name(self):
+    @classmethod
+    def setUpClass(cls):
         """
-        Tests for name inputs
+            setup
         """
-        pass
+        cls.dummy_state = State()
+        cls.dummy_state.name = "tests"
 
+    @classmethod
+    def tearDownClass(cls):
+        """
+            tear down
+        """
+        del cls.dummy_state
 
-if __name__ == '__main__':
+    def test_inheritance(self):
+        """
+            test proper inheritance
+        """
+        self.assertIsInstance(self.dummy_state, BaseModel)
+        self.assertTrue(hasattr(self.dummy_state, "id"))
+        self.assertTrue(hasattr(self.dummy_state, "created_at"))
+        self.assertTrue(hasattr(self.dummy_state, "updated_at"))
+
+    def test_attrs(self):
+        """
+            test attributes
+        """
+        self.assertTrue(hasattr(self.dummy_state, "name"))
+
+if __name__ == "__main__":
     unittest.main()
